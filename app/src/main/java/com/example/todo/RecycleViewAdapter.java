@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
 import java.util.List;
 
 class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
@@ -50,6 +51,11 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
     @Override
     public int getItemCount() {
         return taskList.size();
+    }
+
+    public void filterList(ArrayList<Tasks> filteredList) {
+        this.taskList = filteredList;
+        notifyDataSetChanged();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {

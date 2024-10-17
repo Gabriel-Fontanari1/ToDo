@@ -1,9 +1,10 @@
 package com.example.todo;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -11,22 +12,19 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.List;
 
-//ideia: fazer um app para adicionar tarefas a serem feitas.
-//vai ser possível: add novas tarefas, exclui-las, separa-las por filtros, como concluido, não concluido, in progress, etc.
 public class MainActivity extends AppCompatActivity {
 
-    //atributos
+    // atributos
     RecyclerView recyclerViewTask;
     EditText editTextSearchTask;
     EditText textInputEditTextAddTask;
     Button buttonAddTask;
-    List tasks;
+    List<Tasks> tasks;
     ArrayList<Tasks> taskList;
-
+    TaskAdapter taskAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,24 +37,23 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        //recyclerview
+        // RecyclerView
         recyclerViewTask = findViewById(R.id.recyclerViewTask);
         taskList = new ArrayList<>();
         recyclerViewTask.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewTask.setAdapter(new TaskAdapter(taskList, this));
+        taskAdapter = new TaskAdapter(taskList, this);
+        recyclerViewTask.setAdapter(taskAdapter);
         recyclerViewTask.setHasFixedSize(true);
 
-        //puxar as views
-        recyclerViewTask = findViewById(R.id.recyclerViewTask);
+        // Views
         editTextSearchTask = findViewById(R.id.editTextSearchTask);
         textInputEditTextAddTask = findViewById(R.id.textInputEditTextAddTask);
         buttonAddTask = findViewById(R.id.buttonAddTask);
 
         addTask();
+        setupSearchFilter();
     }
 
-    //metodos
-    //metodo do botão addtaks
     public void addTask() {
         buttonAddTask.setOnClickListener(View -> {
             String task = textInputEditTextAddTask.getText().toString();
@@ -67,5 +64,32 @@ public class MainActivity extends AppCompatActivity {
                 textInputEditTextAddTask.setText("");
             }
         });
+    }
+
+    private void setupSearchFilter() {
+        editTextSearchTask.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterTasks(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    private void filterTasks(String text) {
+        ArrayList<Tasks> filteredList = new ArrayList<>();
+        for (Tasks task : taskList) {
+            if (task.getTask().toLowerCase().contains(text.toLowerCase())) {
+                filteredList.add(task);
+            }
+        }
+        taskAdapter.filterList(filteredList);
     }
 }
