@@ -33,7 +33,7 @@
         android:layout_height="50dp"
         android:layout_marginStart="7dp"
         android:layout_marginEnd="80dp"
-        android:layout_marginBottom="45dp"
+        android:layout_marginBottom="56dp"
         android:hint="Adicionar"
         android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -45,7 +45,7 @@
         android:layout_width="65dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
-        android:layout_marginBottom="45dp"
+        android:layout_marginBottom="56dp"
         app:icon="@android:drawable/ic_menu_add"
         app:iconPadding="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -57,11 +57,44 @@
         android:layout_width="360dp"
         android:layout_height="400dp"
         android:layout_marginStart="1dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="1dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="1dp"
         app:layout_constraintBottom_toTopOf="@+id/textInputEditTextAddTask"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerViewTask"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2">
+
+        <RadioButton
+            android:id="@+id/radioButtonInProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="In progress" />
+
+        <RadioButton
+            android:id="@+id/radioButtonDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="Done" />
+
+        <RadioButton
+            android:id="@+id/radioButtonAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:text="All" />
+
+    </RadioGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>
