@@ -19,13 +19,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    // atributos
     RecyclerView recyclerViewTask;
     EditText editTextSearchTask;
     EditText textInputEditTextAddTask;
     Button buttonAddTask;
-    List<Tasks> tasks;
-    static List<Tasks> originalList; // Lista original para o filtro
+    static List<Tasks> originalList;
     ArrayList<Tasks> taskList;
     TaskAdapter taskAdapter;
 
@@ -40,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        // RecyclerView
         recyclerViewTask = findViewById(R.id.recyclerViewTask);
         taskList = new ArrayList<>();
         recyclerViewTask.setLayoutManager(new LinearLayoutManager(this));
@@ -48,12 +45,10 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewTask.setAdapter(taskAdapter);
         recyclerViewTask.setHasFixedSize(true);
 
-        // Views
         editTextSearchTask = findViewById(R.id.editTextSearchTask);
         textInputEditTextAddTask = findViewById(R.id.textInputEditTextAddTask);
         buttonAddTask = findViewById(R.id.buttonAddTask);
 
-        // Inicializa a lista original
         originalList = new ArrayList<>(taskList);
 
         addTask();
@@ -66,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             if (!task.isEmpty()) {
                 Tasks newTask = new Tasks(task, false);
                 taskList.add(newTask);
-                originalList.add(newTask); // Adiciona à lista original também
+                originalList.add(newTask);
                 recyclerViewTask.getAdapter().notifyItemInserted(taskList.size() - 1);
                 textInputEditTextAddTask.setText("");
             }
@@ -92,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void filterTasks(String text) {
         ArrayList<Tasks> filteredList = new ArrayList<>();
-        for (Tasks task : originalList) { // Filtra a lista original
+        for (Tasks task : originalList) {
             if (task.getTask().toLowerCase().contains(text.toLowerCase())) {
                 filteredList.add(task);
             }

@@ -1,6 +1,8 @@
 package com.example.todo;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +39,6 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
         holder.textTask.setText(task.getTask());
         holder.checkBox.setChecked(task.getDone());
 
-        // Riscar o textViewTask quando a caixa for marcada
         if (task.getDone()) {
             holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
@@ -46,15 +47,28 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
 
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setDone(isChecked);
-            notifyItemChanged(position);
+
+            int originalListIndex = MainActivity.originalList.indexOf(task);
+            if (originalListIndex != -1) {
+                MainActivity.originalList.get(originalListIndex).setDone(isChecked);
+            }
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                notifyItemChanged(holder.getAdapterPosition());
+            });
+
+            if (isChecked) {
+                holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            }
         });
 
         holder.imageButtonRemoveTask.setOnClickListener(v -> {
-            int adapterPosition = holder.getAdapterPosition(); // Obtém a posição correta
+            int adapterPosition = holder.getAdapterPosition();
             if (adapterPosition != RecyclerView.NO_POSITION) {
                 Tasks taskToRemove = taskList.get(adapterPosition);
                 taskList.remove(adapterPosition);
-                // Encontra e remove da lista original
                 for (int i = 0; i < MainActivity.originalList.size(); i++) {
                     if (MainActivity.originalList.get(i).getTask().equals(taskToRemove.getTask())) {
                         MainActivity.originalList.remove(i);
@@ -63,15 +77,6 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
                 }
                 notifyItemRemoved(adapterPosition);
                 notifyItemRangeChanged(adapterPosition, taskList.size());
-            }
-        });
-
-        // Quando a checkbox for desmarcada
-        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!isChecked) {
-                holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
-            } else {
-                holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
             }
         });
     }
