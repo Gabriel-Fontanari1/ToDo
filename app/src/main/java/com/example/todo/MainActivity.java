@@ -3,8 +3,11 @@ package com.example.todo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
     static List<Tasks> originalList;
     ArrayList<Tasks> taskList;
     TaskAdapter taskAdapter;
+    RadioButton radioButtonInProgress;
+    RadioButton radioButtonDone;
+    RadioButton radioButtonAll;
+    RadioGroup radioGroupFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +55,38 @@ public class MainActivity extends AppCompatActivity {
         editTextSearchTask = findViewById(R.id.editTextSearchTask);
         textInputEditTextAddTask = findViewById(R.id.textInputEditTextAddTask);
         buttonAddTask = findViewById(R.id.buttonAddTask);
+        //findview dos radiobuttons
+        radioButtonInProgress = findViewById(R.id.radioButtonInProgress);
+        radioButtonDone = findViewById(R.id.radioButtonDone);
+        radioButtonAll = findViewById(R.id.radioButtonAll);
+        radioGroupFilter = findViewById(R.id.radioGroupFilter);
 
         originalList = new ArrayList<>(taskList);
 
         addTask();
         setupSearchFilter();
+
+        radioGroupFilter.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radioButtonAll) {
+                taskAdapter.filterList((ArrayList<Tasks>) originalList);
+            } else if (checkedId == R.id.radioButtonInProgress) {
+                ArrayList<Tasks> inProgressList = new ArrayList<>();
+                for (Tasks task : originalList) {
+                    if (!task.getDone()) {
+                        inProgressList.add(task);
+                    }
+                }
+                taskAdapter.filterList(inProgressList);
+            } else if (checkedId == R.id.radioButtonDone) {
+                ArrayList<Tasks> doneList = new ArrayList<>();
+                for (Tasks task : originalList) {
+                    if (task.getDone()) {
+                        doneList.add(task);
+                    }
+                }
+                taskAdapter.filterList(doneList);
+            }
+        });
     }
 
     public void addTask() {
