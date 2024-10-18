@@ -9,6 +9,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 import java.util.List;
 
 class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
@@ -34,6 +36,14 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
         holder.textTask.setText(task.getTask());
         holder.checkBox.setChecked(task.getDone());
 
+        //raruzar o textViewTask, quando a box for marcada
+        if (task.getDone()) {
+            holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+        else {
+            holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setDone(isChecked);
             notifyItemChanged(position);
@@ -44,6 +54,16 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             notifyItemRemoved(position);
             notifyItemRangeChanged(position, taskList.size());
             notifyDataSetChanged();
+        });
+
+        //quando a checkbox for desmarcada
+        holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!isChecked) {
+                holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+            else {
+                holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
+            }
         });
     }
 
@@ -63,5 +83,10 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             checkBox = itemView.findViewById(R.id.checkBox);
             imageButtonRemoveTask = itemView.findViewById(R.id.imageButtonRemoveTask);
         }
+    }
+
+    public void filterList(ArrayList<Tasks> filteredList) {
+        this.taskList = filteredList;
+        notifyDataSetChanged();
     }
 }
