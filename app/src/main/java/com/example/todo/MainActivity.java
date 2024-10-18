@@ -5,6 +5,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -12,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     EditText textInputEditTextAddTask;
     Button buttonAddTask;
     List<Tasks> tasks;
+    static List<Tasks> originalList; // Lista original para o filtro
     ArrayList<Tasks> taskList;
     TaskAdapter taskAdapter;
 
@@ -50,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         textInputEditTextAddTask = findViewById(R.id.textInputEditTextAddTask);
         buttonAddTask = findViewById(R.id.buttonAddTask);
 
+        // Inicializa a lista original
+        originalList = new ArrayList<>(taskList);
+
         addTask();
         setupSearchFilter();
     }
@@ -60,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             if (!task.isEmpty()) {
                 Tasks newTask = new Tasks(task, false);
                 taskList.add(newTask);
+                originalList.add(newTask); // Adiciona à lista original também
                 recyclerViewTask.getAdapter().notifyItemInserted(taskList.size() - 1);
                 textInputEditTextAddTask.setText("");
             }
@@ -85,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void filterTasks(String text) {
         ArrayList<Tasks> filteredList = new ArrayList<>();
-        for (Tasks task : taskList) {
+        for (Tasks task : originalList) { // Filtra a lista original
             if (task.getTask().toLowerCase().contains(text.toLowerCase())) {
                 filteredList.add(task);
             }

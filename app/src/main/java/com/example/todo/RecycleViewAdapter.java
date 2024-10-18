@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,11 +37,10 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
         holder.textTask.setText(task.getTask());
         holder.checkBox.setChecked(task.getDone());
 
-        //raruzar o textViewTask, quando a box for marcada
+        // Riscar o textViewTask quando a caixa for marcada
         if (task.getDone()) {
             holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
-        }
-        else {
+        } else {
             holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
         }
 
@@ -50,18 +50,27 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
         });
 
         holder.imageButtonRemoveTask.setOnClickListener(v -> {
-            taskList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, taskList.size());
-            notifyDataSetChanged();
+            int adapterPosition = holder.getAdapterPosition(); // Obtém a posição correta
+            if (adapterPosition != RecyclerView.NO_POSITION) {
+                Tasks taskToRemove = taskList.get(adapterPosition);
+                taskList.remove(adapterPosition);
+                // Encontra e remove da lista original
+                for (int i = 0; i < MainActivity.originalList.size(); i++) {
+                    if (MainActivity.originalList.get(i).getTask().equals(taskToRemove.getTask())) {
+                        MainActivity.originalList.remove(i);
+                        break;
+                    }
+                }
+                notifyItemRemoved(adapterPosition);
+                notifyItemRangeChanged(adapterPosition, taskList.size());
+            }
         });
 
-        //quando a checkbox for desmarcada
+        // Quando a checkbox for desmarcada
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!isChecked) {
                 holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & ~android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
-            }
-            else {
+            } else {
                 holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
             }
         });
