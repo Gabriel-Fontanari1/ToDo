@@ -51,14 +51,7 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setDone(isChecked);
 
-            new Thread(() -> {
-                MainActivity.taskDao.updateTask(task);
-            }).start();
-
-            int originalListIndex = MainActivity.originalList.indexOf(task);
-            if (originalListIndex != -1) {
-                MainActivity.originalList.get(originalListIndex).setDone(isChecked);
-            }
+            new Thread(() -> MainActivity.taskDao.updateTask(task)).start();
 
             new Handler(Looper.getMainLooper()).post(() -> {
                 notifyItemChanged(holder.getAdapterPosition());
@@ -76,16 +69,8 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             if (adapterPosition != RecyclerView.NO_POSITION) {
                 Tasks taskToRemove = taskList.get(adapterPosition);
                 taskList.remove(adapterPosition);
-                for (int i = 0; i < MainActivity.originalList.size(); i++) {
-                    if (MainActivity.originalList.get(i).getTask().equals(taskToRemove.getTask())) {
-                        MainActivity.originalList.remove(i);
-                        break;
-                    }
-                }
 
-                new Thread(() -> {
-                    MainActivity.taskDao.deleteTask(taskToRemove);
-                }).start();
+                new Thread(() -> MainActivity.taskDao.deleteTask(taskToRemove)).start();
 
                 notifyItemRemoved(adapterPosition);
                 notifyItemRangeChanged(adapterPosition, taskList.size());
