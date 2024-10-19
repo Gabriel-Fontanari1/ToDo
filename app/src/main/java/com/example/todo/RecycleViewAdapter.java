@@ -38,6 +38,9 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Tasks task = taskList.get(position);
         holder.textTask.setText(task.getTask());
+
+        // Desabilitar temporariamente o listener do checkbox ao fazer a ligação de dados
+        holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setChecked(task.getDone());
 
         if (task.getDone()) {
@@ -46,6 +49,7 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         }
 
+        // Reconfigurar o listener do checkbox
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setDone(isChecked);
 
@@ -81,6 +85,7 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             }
         });
     }
+
 
     @Override
     public int getItemCount() {
