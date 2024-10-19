@@ -39,7 +39,6 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
         Tasks task = taskList.get(position);
         holder.textTask.setText(task.getTask());
 
-        // Desabilitar temporariamente o listener do checkbox ao fazer a ligação de dados
         holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setChecked(task.getDone());
 
@@ -49,11 +48,9 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         }
 
-        // Reconfigurar o listener do checkbox
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setDone(isChecked);
 
-            // Atualizar a tarefa no banco de dados
             new Thread(() -> {
                 MainActivity.taskDao.updateTask(task);
             }).start();
@@ -74,7 +71,6 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             }
         });
 
-        // Remover tarefa ao clicar no botão de exclusão
         holder.imageButtonRemoveTask.setOnClickListener(v -> {
             int adapterPosition = holder.getAdapterPosition();
             if (adapterPosition != RecyclerView.NO_POSITION) {
@@ -87,7 +83,6 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
                     }
                 }
 
-                // Remover tarefa do banco de dados
                 new Thread(() -> {
                     MainActivity.taskDao.deleteTask(taskToRemove);
                 }).start();
