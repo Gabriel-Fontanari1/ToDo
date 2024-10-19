@@ -9,6 +9,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -22,8 +23,8 @@ public class MainActivity extends AppCompatActivity {
     EditText editTextSearchTask;
     EditText textInputEditTextAddTask;
     Button buttonAddTask;
-    static List<Tasks> originalList;
-    ArrayList<Tasks> taskList;
+    ArrayList<Tasks> originalList = new ArrayList<>();
+    ArrayList<Tasks> taskList = new ArrayList<>();
     TaskAdapter taskAdapter;
     RadioButton radioButtonInProgress;
     RadioButton radioButtonDone;
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         db = Room.databaseBuilder(getApplicationContext(),
-                AppDatabase.class, "todo-database").allowMainThreadQueries().build();
+                AppDatabase.class, "todo-database").build();
 
         taskDao = db.taskDao();
 
@@ -55,15 +56,12 @@ public class MainActivity extends AppCompatActivity {
         radioButtonAll = findViewById(R.id.radioButtonAll);
         radioGroupFilter = findViewById(R.id.radioGroupFilter);
 
-        taskList = new ArrayList<>();
         recyclerViewTask.setLayoutManager(new LinearLayoutManager(this));
         taskAdapter = new TaskAdapter(taskList, this);
         recyclerViewTask.setAdapter(taskAdapter);
         recyclerViewTask.setHasFixedSize(true);
-        originalList = new ArrayList<>(taskList);
 
         loadTasksFromDatabase();
-
         addTask();
         setupSearchFilter();
 
@@ -74,10 +72,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadTasksFromDatabase() {
-        List<Tasks> tasksFromDb = taskDao.getAllTasks();
-        taskList.addAll(tasksFromDb);
-        originalList.addAll(tasksFromDb);
-        taskAdapter.notifyDataSetChanged();
+        taskDao.getAllTasks().observe(this, new Observer<List<Tasks>>() {
+            @Override
+            public void onChanged(List<Tasks> tasks) {
+                originalList.clear();
+                originalList.addAll(tasks);
+                filterTasks(editTextSearchTask.getText().toString());
+            }
+        });
     }
 
     public void addTask() {
@@ -86,13 +88,12 @@ public class MainActivity extends AppCompatActivity {
             if (!taskText.isEmpty()) {
                 Tasks newTask = new Tasks(taskText, false);
 
-                taskList.add(newTask);
-                originalList.add(newTask);
-
-                taskDao.insertTask(newTask);
-
-                recyclerViewTask.getAdapter().notifyItemInserted(taskList.size() - 1);
-                textInputEditTextAddTask.setText("");
+                new Thread(() -> {
+                    taskDao.insertTask(newTask);
+                    runOnUiThread(() -> {
+                        textInputEditTextAddTask.setText("");
+                    });
+                }).start();
             }
         });
     }

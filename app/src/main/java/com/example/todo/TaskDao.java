@@ -1,5 +1,6 @@
 package com.example.todo;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -12,7 +13,7 @@ import java.util.List;
 public interface TaskDao {
 
     @Query("SELECT * FROM tasks")
-    List<Tasks> getAllTasks();
+    LiveData<List<Tasks>> getAllTasks();
 
     @Query("SELECT * FROM tasks WHERE done = :doneStatus")
     List<Tasks> getTasksByStatus(boolean doneStatus);
