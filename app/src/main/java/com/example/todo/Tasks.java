@@ -1,17 +1,32 @@
 package com.example.todo;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "tasks")
 public class Tasks {
 
-    String task;
-    boolean done;
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+
+    private String task;
+    private boolean done;
 
     public Tasks(String task, boolean done) {
         this.task = task;
         this.done = done;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getTask() {
-        return this.task;
+        return task;
     }
 
     public void setTask(String task) {
@@ -19,7 +34,7 @@ public class Tasks {
     }
 
     public boolean getDone() {
-        return this.done;
+        return done;
     }
 
     public void setDone(boolean done) {

@@ -53,6 +53,11 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setDone(isChecked);
 
+            // Atualizar a tarefa no banco de dados
+            new Thread(() -> {
+                MainActivity.taskDao.updateTask(task);
+            }).start();
+
             int originalListIndex = MainActivity.originalList.indexOf(task);
             if (originalListIndex != -1) {
                 MainActivity.originalList.get(originalListIndex).setDone(isChecked);
@@ -69,6 +74,7 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             }
         });
 
+        // Remover tarefa ao clicar no botão de exclusão
         holder.imageButtonRemoveTask.setOnClickListener(v -> {
             int adapterPosition = holder.getAdapterPosition();
             if (adapterPosition != RecyclerView.NO_POSITION) {
@@ -80,12 +86,17 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
                         break;
                     }
                 }
+
+                // Remover tarefa do banco de dados
+                new Thread(() -> {
+                    MainActivity.taskDao.deleteTask(taskToRemove);
+                }).start();
+
                 notifyItemRemoved(adapterPosition);
                 notifyItemRangeChanged(adapterPosition, taskList.size());
             }
         });
     }
-
 
     @Override
     public int getItemCount() {
