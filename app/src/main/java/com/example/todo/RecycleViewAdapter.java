@@ -1,14 +1,20 @@
 package com.example.todo;
 
 import android.content.Context;
+import android.graphics.Paint;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 import java.util.List;
 
 class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
@@ -32,18 +38,58 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Tasks task = taskList.get(position);
         holder.textTask.setText(task.getTask());
+
+        holder.checkBox.setOnCheckedChangeListener(null);
         holder.checkBox.setChecked(task.getDone());
+
+        if (task.getDone()) {
+            holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
 
         holder.checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setDone(isChecked);
-            notifyItemChanged(position);
+
+            new Thread(() -> {
+                MainActivity.taskDao.updateTask(task);
+            }).start();
+
+            int originalListIndex = MainActivity.originalList.indexOf(task);
+            if (originalListIndex != -1) {
+                MainActivity.originalList.get(originalListIndex).setDone(isChecked);
+            }
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                notifyItemChanged(holder.getAdapterPosition());
+            });
+
+            if (isChecked) {
+                holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                holder.textTask.setPaintFlags(holder.textTask.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            }
         });
 
         holder.imageButtonRemoveTask.setOnClickListener(v -> {
-            taskList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, taskList.size());
-            notifyDataSetChanged();
+            int adapterPosition = holder.getAdapterPosition();
+            if (adapterPosition != RecyclerView.NO_POSITION) {
+                Tasks taskToRemove = taskList.get(adapterPosition);
+                taskList.remove(adapterPosition);
+                for (int i = 0; i < MainActivity.originalList.size(); i++) {
+                    if (MainActivity.originalList.get(i).getTask().equals(taskToRemove.getTask())) {
+                        MainActivity.originalList.remove(i);
+                        break;
+                    }
+                }
+
+                new Thread(() -> {
+                    MainActivity.taskDao.deleteTask(taskToRemove);
+                }).start();
+
+                notifyItemRemoved(adapterPosition);
+                notifyItemRangeChanged(adapterPosition, taskList.size());
+            }
         });
     }
 
@@ -63,5 +109,10 @@ class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder> {
             checkBox = itemView.findViewById(R.id.checkBox);
             imageButtonRemoveTask = itemView.findViewById(R.id.imageButtonRemoveTask);
         }
+    }
+
+    public void filterList(ArrayList<Tasks> filteredList) {
+        this.taskList = filteredList;
+        notifyDataSetChanged();
     }
 }
